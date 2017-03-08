@@ -1,0 +1,11 @@
+close        12345678
+open         $(N) $(S)
+close        $(N)
+open         $(N) $(S)
+write        100 $(S) 0
+read         100 $(S) 0
+close        $(N)
+write        $(S) 0 0
+read         $(S) 0 0
+futex        $(S) 1 0
+close        87654321

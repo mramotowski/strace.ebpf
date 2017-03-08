@@ -1,0 +1,11 @@
+close        12345678
+open         /etc/fstab 0 $(S)
+close        $(N)
+open         /tmp/tmp-strace.ebpf 42 $(S)
+write        $(N) $(S) 100
+read         $(N) $(S) 100
+close        $(N)
+write        101 $(S) 1
+read         102 $(S) 2
+futex        1 2 3
+close        87654321

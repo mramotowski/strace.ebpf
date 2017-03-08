@@ -145,3 +145,109 @@ function check() {
 
 	return $RV
 }
+
+#
+# check_py -- check test results (using .match files)
+#
+function check_py_ret() {
+	local MATCH_OUT="match-${TEST_NUM}.log"
+	set +e
+
+	# copy match files in case of out-of-tree build
+	[ "$TEST_DIR" != "$(pwd)" ] && cp -v -f $TEST_DIR/tracepy-ret-${TEST_NUM}.log.match .
+
+	# create missing log files
+	ls -1 tracepy-ret-${TEST_NUM}.log.match | sed 's/\.match//g' | xargs touch
+
+	# finally run 'match'
+	$TEST_DIR/match tracepy-ret-${TEST_NUM}.log.match >$MATCH_OUT 2>&1
+	RV=$?
+	set -e
+	[ $RV -eq 0 ] && rm -f $MATCH_OUT && return
+
+	# match failed - print few last lines
+	tail -n11 $MATCH_OUT
+
+	echo "------"
+
+	# output does not match the pattern
+	if [ "$(tail -n1 $MATCH_OUT | grep 'did not match pattern')" != "" ]; then
+		# check if log is truncated
+		local LINE=$(tail -n2 $MATCH_OUT | grep -e 'EOF' -e '12345678')
+		if [ "$LINE" == "" ]; then
+			local OUT=$(tail -n3 $MATCH_OUT | head -n2 | cut -c29- | cut -d' ' -f1)
+			# echo OUT=$OUT
+			SC_MATCH=$(echo $OUT | cut -d" " -f1)
+			SC_IS=$(echo $OUT | cut -d" " -f2)
+			[ "$SC_MATCH" != "$SC_IS" ] \
+				&& echo "Error 1: missed syscall $SC_MATCH" \
+				|| echo "Error 2: wrong arguments of syscall $SC_MATCH"
+		else
+			LN=$(echo $LINE | cut -d':' -f2 | cut -d' ' -f1)
+			[ $LN -eq 1 ] \
+				&& echo "Error 3: missing output" \
+				|| echo "Error 4: truncated output"
+		fi
+	else
+		echo "Error 0: unknown error"
+	fi
+
+	echo "------"
+
+	save_logs "*-$TEST_NUM.log" "match-$(basename $TEST_FILE)-$TEST_NUM"
+
+	return $RV
+}
+
+#
+# check_py_ent -- check test results (using .match files)
+#
+function check_py_ent() {
+	local MATCH_OUT="match-${TEST_NUM}.log"
+	set +e
+
+	# copy match files in case of out-of-tree build
+	[ "$TEST_DIR" != "$(pwd)" ] && cp -v -f $TEST_DIR/tracepy-ent-${TEST_NUM}.log.match .
+
+	# create missing log files
+	ls -1 tracepy-ent-${TEST_NUM}.log.match | sed 's/\.match//g' | xargs touch
+
+	# finally run 'match'
+	$TEST_DIR/match tracepy-ent-${TEST_NUM}.log.match >$MATCH_OUT 2>&1
+	RV=$?
+	set -e
+	[ $RV -eq 0 ] && rm -f $MATCH_OUT && return
+
+	# match failed - print few last lines
+	tail -n11 $MATCH_OUT
+
+	echo "------"
+
+	# output does not match the pattern
+	if [ "$(tail -n1 $MATCH_OUT | grep 'did not match pattern')" != "" ]; then
+		# check if log is truncated
+		local LINE=$(tail -n2 $MATCH_OUT | grep -e 'EOF' -e '12345678')
+		if [ "$LINE" == "" ]; then
+			local OUT=$(tail -n3 $MATCH_OUT | head -n2 | cut -c29- | cut -d' ' -f1)
+			# echo OUT=$OUT
+			SC_MATCH=$(echo $OUT | cut -d" " -f1)
+			SC_IS=$(echo $OUT | cut -d" " -f2)
+			[ "$SC_MATCH" != "$SC_IS" ] \
+				&& echo "Error 1: missed syscall $SC_MATCH" \
+				|| echo "Error 2: wrong arguments of syscall $SC_MATCH"
+		else
+			LN=$(echo $LINE | cut -d':' -f2 | cut -d' ' -f1)
+			[ $LN -eq 1 ] \
+				&& echo "Error 3: missing output" \
+				|| echo "Error 4: truncated output"
+		fi
+	else
+		echo "Error 0: unknown error"
+	fi
+
+	echo "------"
+
+	save_logs "*-$TEST_NUM.log" "match-$(basename $TEST_FILE)-$TEST_NUM"
+
+	return $RV
+}

@@ -70,18 +70,32 @@ OUT=output-$TEST_NUM.log
 OUT_BARE=output-bare-$TEST_NUM.log
 OUT_SORT=output-sort-$TEST_NUM.log
 
-OPT_TRACE_PY="-t 'sys_close \"%llx\", arg1' sys_futex 'r::sys_futex \"retval=%llx\", retval' sys_poll 'r::sys_poll \"retval=%llx\", retval'"
+OPT_TRACE_PY="-t \
+'sys_close \"%llx\", arg1' \
+'r::sys_open \"%llx %s %llx\", retval, arg2, arg1' \
+'r::sys_write \"%llx %llx %llx\", retval, arg1, arg2' \
+'r::sys_read \"%llx %llx %llx\", retval, arg1, arg2' \
+'r::sys_futex \"%llx %llx %llx\", retval, arg1, arg2' \
+'r::sys_poll \"%llx %llx %llx\", retval, arg1, arg2' \
+'r::sys_ppoll \"%llx %llx %llx\", retval, arg1, arg2' \
+'r::sys_select \"%llx %llx %llx\", retval, arg1, arg2' \
+'r::sys_pselect6 \"%llx %llx %llx\", retval, arg1, arg2' \
+'r::sys_epoll_wait \"%llx %llx %llx\", retval, arg1, arg2' \
+'r::sys_epoll_pwait \"%llx %llx %llx\", retval, arg1, arg2' \
+"
 
-# XXX drop hard-coded path
-export PATH="${PATH}:/home/vitalii/projects/bcc/tools/"
-
-TRACE_PY=`which trace.py`
+TRACE_PY=`which trace`
 [ ! -x $TRACE_PY ] \
-	&& echo "Error: executable file '$TRACE_PY' does not exist" \
+	&& echo "Error: executable file '$TRACE_PY' does not exist - bcc's trace.py is not installed" \
 	&& exit 1
 
-
 require_superuser
+set +e
+sudo killall trace  2>/dev/null
+sudo killall python 2>/dev/null
+sudo bash -c "while ! echo 0 > /sys/kernel/debug/tracing/tracing_on;  do date > /dev/null; done"
+sudo bash -c "while ! echo > /sys/kernel/debug/tracing/kprobe_events; do date > /dev/null; done" 2>/dev/null
+set -e
 
 # remove all logs of the current test
 rm -f *-$TEST_NUM.log
@@ -96,19 +110,34 @@ RUN_TRACE_PY="ulimit -l 10240 && ulimit -n 10240 && stdbuf -o L $TRACE_PY -p $TE
 
 echo "# sudo bash -c \"$RUN_TRACE_PY\" >$OUT 2>&1 &"
 sudo bash -c "$RUN_TRACE_PY" >$OUT 2>&1 &
+TRACE_PID=$!
 
-sleep 1
+sleep 3
 
 kill -CONT $TEST_PID
 
-wait $TEST_PID 
+sleep 1
 
-sudo pkill -INT trace.py
+wait $TEST_PID
+
+sleep 1
+
+set +e
+sudo kill -INT $TRACE_PID
+sudo killall -INT trace
+sudo killall -INT python
 
 grep -v -e 'PID.*TID' -e "$OUT" $OUT > $OUT_BARE
+[ $? -ne 0 ] && echo "Error: grep"
+set -e
 
 # tests without fork()
 sort $OUT_BARE -o $OUT_SORT
-cut_part_file $OUT_SORT "$PATTERN_START" "$PATTERN_END" > cut-$TEST_NUM.log
 
-#check
+cut_part_file $OUT_SORT "$PATTERN_START" "$PATTERN_END" |  cut -d'y' -f2 | cut -c3- > tracepy-ret-$TEST_NUM.log
+
+# echo "-------------------------------------"
+# cat tracepy-ret-$TEST_NUM.log
+# echo "-------------------------------------"
+
+check_py_ret

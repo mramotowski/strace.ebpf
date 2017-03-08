@@ -1,0 +1,9 @@
+close        12345678
+open         $(S) 222_non_exist $(S)
+epoll_wait   $(S) 102 $(S)
+epoll_pwait  $(S) $(S) $(S)
+select       $(S) $(S) $(S)
+pselect6     $(S) $(S) $(S)
+poll         $(S) $(S) $(S)
+ppoll        $(S) $(S) $(S)
+close        87654321

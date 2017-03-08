@@ -1,0 +1,9 @@
+close        12345678
+open         222_non_exist $(S) $(S)
+epoll_wait   102 103 104
+epoll_pwait  103 104 105
+select       0 104 105
+pselect6     0 105 106
+poll         102 103 104
+ppoll        101 102 103
+close        87654321
