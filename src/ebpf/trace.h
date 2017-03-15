@@ -124,7 +124,7 @@ struct ev_dt_t {
 		/* Body of header */
 		struct {
 			s64 argc;
-			char argv[];
+			char *argv;
 		} header;
 
 		/*

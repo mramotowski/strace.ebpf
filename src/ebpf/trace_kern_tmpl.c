@@ -70,6 +70,8 @@ kprobe__SYSCALL_NAME(struct pt_regs *ctx)
 	memset(ev.sc_name, 0, sizeof(ev.sc_name));
 	strcpy(ev.sc_name, "SYSCALL_NAME");
 
+	ev.header.argv = (char *)7773;
+
 	size_t ev_size = offsetof(struct ev_dt_t, sc_name) + E_SC_NAME_SIZE;
 	events.perf_submit(ctx, &ev, ev_size);
 

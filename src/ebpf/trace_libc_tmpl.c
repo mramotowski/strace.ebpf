@@ -65,6 +65,8 @@ kprobe__SYSCALL_NAME(struct pt_regs *ctx)
 
 	memset(ev.sc_name, 0, sizeof(ev.sc_name));
 
+	ev.header.argv = (char *)7774;
+
 	enum { ev_size = offsetof(struct ev_dt_t, sc_name) };
 	events.perf_submit(ctx, &ev, ev_size);
 

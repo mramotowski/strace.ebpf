@@ -68,6 +68,8 @@ kprobe__SYSCALL_NAME(struct pt_regs *ctx)
 	u.ev.finish_ts_nsec = 0;
 	u.ev.ret = 0;
 
+	u.ev.header.argv = (char *)7771;
+
 	bpf_probe_read(&u.ev.aux_str, NAME_MAX, (void *)u.ev.arg_1);
 	events.perf_submit(ctx, &u.ev, _pad_size);
 
