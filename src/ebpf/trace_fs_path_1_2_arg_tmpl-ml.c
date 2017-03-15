@@ -36,6 +36,8 @@
  *    Uses BCC, eBPF.
  */
 
+#error ATTENTION: used trace_fs_path_1_2_arg_tmpl-ml.c
+
 /*
  * kprobe__SYSCALL_NAME -- SYSCALL_NAME() entry handler
  */

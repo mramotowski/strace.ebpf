@@ -35,6 +35,8 @@
  *    libc and filename as first argument. Multi-packet version. Uses BCC, eBPF.
  */
 
+#error ATTENTION: used trace_fs_path_1_3_arg_tmpl-ml.c
+
 /*
  * kprobe__SYSCALL_NAME -- SYSCALL_NAME() entry handler
  */

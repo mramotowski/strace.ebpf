@@ -36,6 +36,8 @@
  *    version. Uses BCC, eBPF.
  */
 
+#error ATTENTION: used trace_fileat_tmpl-ml.c
+
 /*
  * kprobe__SYSCALL_NAME -- SYSCALL_NAME() entry handler
  */

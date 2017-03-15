@@ -35,6 +35,8 @@
  *                      Uses BCC, eBPF.
  */
 
+#error ATTENTION: used trace_fork_tmpl.c
+
 /*
  * kprobe__SYSCALL_NAME -- SYSCALL_NAME() entry handler
  */

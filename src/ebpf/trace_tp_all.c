@@ -34,6 +34,8 @@
  * trace_tp_all.c -- Trace syscalls. Uses BCC, eBPF.
  */
 
+#error ATTENTION: used trace_tp_all.c
+
 /*
  * tracepoint__sys_enter -- Syscall's entry handler.
  */

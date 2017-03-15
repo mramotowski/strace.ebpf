@@ -35,6 +35,8 @@
  *    filename as first argument. Multi-packet version. Uses BCC, eBPF.
  */
 
+#error ATTENTION: used trace_file_tmpl-ml.c
+
 /*
  * kprobe__SYSCALL_NAME -- SYSCALL_NAME() entry handler
  */
